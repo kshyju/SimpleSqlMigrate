@@ -21,7 +21,7 @@ namespace SimpleSqlMigrate
                 path = Console.ReadLine();
             }
             while (String.IsNullOrEmpty(connectionString))
-            //{
+            {
                 Console.WriteLine("Please enter the connection string");
                 connectionString = Console.ReadLine();
             }
