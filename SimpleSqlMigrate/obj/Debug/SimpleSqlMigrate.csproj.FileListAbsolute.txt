@@ -1,0 +1,6 @@
+C:\Shyju\OSS\SimpleSqlMigrate\SimpleSqlMigrate\bin\Debug\SimpleSqlMigrate.exe.config
+C:\Shyju\OSS\SimpleSqlMigrate\SimpleSqlMigrate\obj\Debug\SimpleSqlMigrate.csprojResolveAssemblyReference.cache
+C:\Shyju\OSS\SimpleSqlMigrate\SimpleSqlMigrate\bin\Debug\SimpleSqlMigrate.exe
+C:\Shyju\OSS\SimpleSqlMigrate\SimpleSqlMigrate\bin\Debug\SimpleSqlMigrate.pdb
+C:\Shyju\OSS\SimpleSqlMigrate\SimpleSqlMigrate\obj\Debug\SimpleSqlMigrate.exe
+C:\Shyju\OSS\SimpleSqlMigrate\SimpleSqlMigrate\obj\Debug\SimpleSqlMigrate.pdb
