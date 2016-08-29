@@ -13,10 +13,19 @@ namespace SimpleSqlMigrate
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Please enter the script location path");
-            var path = Console.ReadLine();
-            Console.WriteLine("Please enter the connection string");
-            var connectionString = Console.ReadLine();
+            string path = string.Empty;
+            string connectionString = string.Empty;
+            while (String.IsNullOrEmpty(path))
+            {
+                Console.WriteLine("Please enter the script location path");
+                path = Console.ReadLine();
+            }
+            while (String.IsNullOrEmpty(connectionString))
+            //{
+                Console.WriteLine("Please enter the connection string");
+                connectionString = Console.ReadLine();
+            }
+
             Console.WriteLine("Starting migration...");
             SimpleSqlMigrate.Run(path, connectionString);
             Console.WriteLine("Finished migration.");
