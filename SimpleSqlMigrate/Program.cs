@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
@@ -26,9 +27,17 @@ namespace SimpleSqlMigrate
                 connectionString = Console.ReadLine();
             }
 
+
             Console.WriteLine("Starting migration...");
-            SimpleSqlMigrate.Run(path, connectionString);
-            Console.WriteLine("Finished migration.");
+            try
+            {
+                SimpleSqlMigrate.Run(path, connectionString);
+                Console.WriteLine("Finished migration.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error!"+ex.Message);
+            }
             Console.ReadLine();
         }
     }
@@ -36,6 +45,7 @@ namespace SimpleSqlMigrate
     public class SimpleSqlMigrate
     {
         const string MigrationTblName = "__DbMigrations";
+
         const string CreateMigrationTableSql =
             @"if OBJECT_ID('{0}') is null 
 begin
@@ -50,8 +60,33 @@ CREATE TABLE [dbo].[{0}](
 end";
 
 
+
         public static void Run(string scriptLocationPath, string connectionString)
         {
+            try
+            {
+                var csb = new DbConnectionStringBuilder();
+                csb.ConnectionString = connectionString; // throws
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("Incorrect connection string!");
+            }
+            
+
+            using (var conn = new SqlConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open(); 
+                }
+                catch (Exception ex)
+                {
+                    
+                    throw new ArgumentException(ex.Message);
+                }
+              
+            }
 
             CreateMigrationTable(connectionString);
 
@@ -60,6 +95,9 @@ end";
 
             string[] fileEntries = Directory.GetFiles(scriptLocationPath);
             var sql = new List<MigrationItem>();
+            if (!fileEntries.Any())
+                throw new ArgumentException("No sql files found in the directory");
+
             foreach (var fileName in fileEntries.OrderBy(g => g))
             {
                 var fileContent = File.ReadAllText(fileName);
