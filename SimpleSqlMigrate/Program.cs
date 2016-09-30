@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SimpleSqlMigrate
@@ -15,7 +16,7 @@ namespace SimpleSqlMigrate
         static void Main(string[] args)
         {
             string path = string.Empty;
-            string connectionString = string.Empty;
+            string connectionString = string.Empty; 
             while (String.IsNullOrEmpty(path))
             {
                 Console.WriteLine("Please enter the script location path");
@@ -130,13 +131,27 @@ end";
                     cmd.Parameters.AddWithValue("@content", item.FileContent);
                     cmd.Parameters.AddWithValue("@startTime", item.ExecutionStartTime);
                     cmd.Parameters.AddWithValue("@endTime", item.ExecutionEndTime);
-
+                    
                     cmd.ExecuteNonQuery();
                 }
 
             }
         }
+        private static IEnumerable<string> SplitSqlStatements(string sqlScript)
+        {
+            // Split by "GO" statements
+            var statements = Regex.Split(
+                    sqlScript,
+                    @"^\s*GO\s*\d*\s*($|\-\-.*$)",
+                    RegexOptions.Multiline |
+                    RegexOptions.IgnorePatternWhitespace |
+                    RegexOptions.IgnoreCase);
 
+            // Remove empties, trim, and return
+            return statements
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Select(x => x.Trim(' ', '\r', '\n'));
+        }
         private static void CreateMigrationTable(string connectionString)
         {
             var c = new MigrationItem { FileContent = String.Format(CreateMigrationTableSql, MigrationTblName) };
@@ -155,9 +170,15 @@ end";
                     foreach (var item in sqlList)
                     {
                         item.ExecutionStartTime = DateTime.UtcNow;
-                        using (var cmd = new SqlCommand(item.FileContent, con, trans))
+                        var sqlCodeItems = SplitSqlStatements(item.FileContent);
+                        foreach (var sqlCode in sqlCodeItems)
                         {
-                            cmd.ExecuteNonQuery();
+
+
+                            using (var cmd = new SqlCommand(sqlCode, con, trans))
+                            {
+                                cmd.ExecuteNonQuery();
+                            }
                         }
                         item.ExecutionEndTime = DateTime.UtcNow;
                         if (!String.IsNullOrEmpty(item.FileName))
